@@ -10,9 +10,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.exoplayer.R
 import com.example.exoplayer.Resource
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
+import com.example.exoplayer.viewmodel.VideoViewModel
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -26,7 +28,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 
 
 class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
-    
+    lateinit var videoViewModel: VideoViewModel
     private lateinit var binding: ExoplayerActivityBinding
     private lateinit var MainPlayer: SimpleExoPlayer
     private lateinit var KEY_PLAYER_POSITION:String
@@ -35,10 +37,9 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     private var CHANNEL_ID:String = "channel1"
     private var CHANNEL_NAME_1:String = "FIRSTCHANNEL"
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         binding = ExoplayerActivityBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)

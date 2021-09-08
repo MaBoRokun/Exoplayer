@@ -2,8 +2,7 @@ package com.example.exoplayer
 
 import com.example.exoplayer.model.Videos
 
-class Resource {
-    companion object{
+object Resource {
         fun createDataSet(): MutableList<Videos>{
             val list = mutableListOf<Videos>()
             list.add(
@@ -58,5 +57,5 @@ class Resource {
             )
             return list
         }
-    }
+
 }

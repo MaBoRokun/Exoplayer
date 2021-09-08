@@ -3,6 +3,8 @@ package com.example.exoplayer.ui.activities
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.exoplayer.Resource
 import com.example.exoplayer.ui.adapter.VideoRecycleAdapter
@@ -13,12 +15,15 @@ import androidx.room.Room
 import com.example.exoplayer.model.Videos
 import com.example.exoplayer.DAO.AppDatabase
 import com.example.exoplayer.databinding.VideosListBinding
+import com.example.exoplayer.repository.VideoRepository
+import com.example.exoplayer.viewmodel.VideoViewModel
+import com.example.exoplayer.viewmodel.VideoViewModelFactory
 
 
 class VideoListActivity: AppCompatActivity(), VideoRecycleAdapter.OnItemClickListener {
 
     private lateinit var binding: VideosListBinding
-
+    lateinit var videoViewModel: VideoViewModel
     private lateinit var videoAdapter: VideoRecycleAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,18 +32,23 @@ class VideoListActivity: AppCompatActivity(), VideoRecycleAdapter.OnItemClickLis
         val view = binding.root
         setContentView(view)
         initRecyclerView()
+        videoViewModel =
+            ViewModelProvider(this, VideoViewModelFactory(VideoRepository(Resource))).get(
+                VideoViewModel::class.java
+            )
+
+        videoViewModel.videoList.observe(this, Observer {
+            Log.d(this.toString(), it.toString())
+        })
+
         addDataSet()
-
-
-
     }
 
     private fun addDataSet(){
         CoroutineScope(IO).launch {
-            val data = Resource.createDataSet()
+            val data = videoViewModel.getVideos()
             videoAdapter.submitList(data)
-
-           val db = Room.databaseBuilder(
+            val db = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "database-name"
             ).fallbackToDestructiveMigration()
