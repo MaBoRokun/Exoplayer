@@ -7,23 +7,23 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
-import com.example.exoplayer.Resource
 import com.example.exoplayer.ui.adapter.VideoRecycleAdapter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import com.example.exoplayer.model.Videos
-import com.example.exoplayer.DAO.AppDatabase
+import com.example.exoplayer.DAO.VideoDatabase
 import com.example.exoplayer.databinding.VideosListBinding
-import com.example.exoplayer.repository.VideoRepository
-import com.example.exoplayer.viewmodel.VideoViewModel
-import com.example.exoplayer.viewmodel.VideoViewModelFactory
+import com.example.exoplayer.model.Video
+import com.example.exoplayer.network.RetrofitService
+import com.example.exoplayer.repository.VidRepository
+import com.example.exoplayer.viewmodel.VidViewModel
+import com.example.exoplayer.viewmodel.VidViewModelFactory
+import kotlinx.coroutines.Dispatchers
 
 
-class VideoListActivity: AppCompatActivity(), VideoRecycleAdapter.OnItemClickListener {
+class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickListener {
 
     private lateinit var binding: VideosListBinding
-    lateinit var videoViewModel: VideoViewModel
+    lateinit var vidViewModel: VidViewModel
     private lateinit var videoAdapter: VideoRecycleAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,43 +32,41 @@ class VideoListActivity: AppCompatActivity(), VideoRecycleAdapter.OnItemClickLis
         val view = binding.root
         setContentView(view)
         initRecyclerView()
-        videoViewModel =
-            ViewModelProvider(this, VideoViewModelFactory(VideoRepository(Resource))).get(
-                VideoViewModel::class.java
+        vidViewModel = ViewModelProvider(this, VidViewModelFactory(VidRepository(RetrofitService)))
+            .get(
+                VidViewModel::class.java
             )
-
-        videoViewModel.videoList.observe(this, Observer {
-            Log.d(this.toString(), it.toString())
+        vidViewModel.videoList.observe(this, Observer {
+            videoAdapter.submitList(it)
+            var index:Long = 0
+            it.forEach {
+                it.id=index
+                toLocalStorage(it)
+                index++
+            }
         })
 
-        addDataSet()
+        vidViewModel.getVideos()
     }
 
-    private fun addDataSet(){
-        CoroutineScope(IO).launch {
-            val data = videoViewModel.getVideos()
-            videoAdapter.submitList(data)
+    private fun toLocalStorage(video: Video) {
+        CoroutineScope(Dispatchers.Default).launch {
             val db = Room.databaseBuilder(
                 applicationContext,
-                AppDatabase::class.java, "database-name"
+                VideoDatabase::class.java, "database-name"
             ).fallbackToDestructiveMigration()
                 .build()
-            val VideosDAO = db.videoDAO()
-            data.forEach {
-                VideosDAO?.insert(it)
-                Log.d("Room_Insert",it.toString())
-            }
-            val Videos: List<Videos>? = VideosDAO?.getAll()
-            Log.d("Room_Select", Videos.toString())
+            val VideosDAO = db.videoDao()
+            VideosDAO.insert(video)
         }
     }
 
-    private fun initRecyclerView(){
-            binding.recyclerView.apply {
-                layoutManager = LinearLayoutManager(this@VideoListActivity)
-                videoAdapter = VideoRecycleAdapter(this@VideoListActivity)
-                binding.recyclerView.adapter = videoAdapter
-            }
+    private fun initRecyclerView() {
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@VideoListActivity)
+            videoAdapter = VideoRecycleAdapter(this@VideoListActivity)
+            binding.recyclerView.adapter = videoAdapter
+        }
     }
 
     override fun onItemClick(position: Int) {
@@ -82,12 +80,13 @@ class VideoListActivity: AppCompatActivity(), VideoRecycleAdapter.OnItemClickLis
 
     override fun onDestroy() {
         super.onDestroy()
-        CoroutineScope(IO).launch {
-            Room.databaseBuilder(
-                applicationContext,
-                AppDatabase::class.java, "database-name"
-            ).fallbackToDestructiveMigration()
-                .build().clearAllTables()
-        }
+//        CoroutineScope(IO).launch {
+//            Room.databaseBuilder(
+//                applicationContext,
+//                VideoDatabase::class.java, "database-name"
+//            ).fallbackToDestructiveMigration()
+//                .build().clearAllTables()
+//        }
+
     }
 }

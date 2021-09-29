@@ -6,7 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.exoplayer.R
-import com.example.exoplayer.model.Videos
+import com.example.exoplayer.VideoCredentials
+import com.example.exoplayer.model.Video
 import com.example.exoplayer.ui.activities.ExoPlayerActivity
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.*
@@ -16,7 +17,7 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
 
-    private var items: List<Videos> = ArrayList()
+    private var items: List<Video> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return VideoViewHolder(
@@ -30,7 +31,7 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
         holder.itemView.title.text= items[position].title
         holder.itemView.subtitle.text= items[position].subtitle
         val targetImageView = holder.itemView.thumb
-        Picasso.get().load(items[position].thumb)
+        Picasso.get().load(VideoCredentials.IMAGE_BASE_URL+items[position].thumb)
             .into(targetImageView)
     }
 
@@ -38,8 +39,9 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
         return items.size
     }
 
-    fun submitList(videoList: List<Videos>){
+    fun submitList(videoList: List<Video>){
         items = videoList
+        notifyDataSetChanged()
     }
 
     inner class VideoViewHolder(itemView: View): RecyclerView.ViewHolder(itemView),
@@ -54,7 +56,7 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
             if(position != RecyclerView.NO_POSITION) {
                 listener.onItemClick(position)
                 val intent = Intent(v?.context, ExoPlayerActivity::class.java)
-                intent.putExtra("id",position.toString())
+                intent.putExtra("id",position)
                 v?.context?.startActivity(intent)
 
             }

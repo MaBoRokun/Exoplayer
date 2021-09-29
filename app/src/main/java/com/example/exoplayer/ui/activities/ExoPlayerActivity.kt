@@ -10,9 +10,17 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
+import com.example.exoplayer.DAO.VideoDatabase
 import com.example.exoplayer.R
-import com.example.exoplayer.Resource
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
+import com.example.exoplayer.model.Video
+import com.example.exoplayer.network.RetrofitService
+import com.example.exoplayer.repository.VidRepository
+import com.example.exoplayer.viewmodel.VidViewModel
+import com.example.exoplayer.viewmodel.VidViewModelFactory
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -22,17 +30,23 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import android.R.string
+import com.google.android.exoplayer2.C
 
 
 class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     private lateinit var binding: ExoplayerActivityBinding
     private lateinit var MainPlayer: SimpleExoPlayer
-    private lateinit var KEY_PLAYER_POSITION:String
-    private lateinit var KEY_PLAYER_PLAY_WHEN_READY:String
+    private lateinit var KEY_PLAYER_POSITION: String
+    private lateinit var KEY_PLAYER_PLAY_WHEN_READY: String
     private lateinit var mNotificationManagerCompat: NotificationManagerCompat
-    private var CHANNEL_ID:String = "channel1"
-    private var CHANNEL_NAME_1:String = "FIRSTCHANNEL"
+    lateinit var vidViewModel: VidViewModel
+    private var CHANNEL_ID: String = "channel1"
+    private var CHANNEL_NAME_1: String = "FIRSTCHANNEL"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,31 +58,54 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         initNotification()
 
         val Intent = intent
-        val id = Intent.getStringExtra("id")
-
+        val id = Intent.getIntExtra("id",0)
         MainPlayer = SimpleExoPlayer.Builder(this).build()
 
         binding.MainActivityPlayer.player = MainPlayer
 
-        val dataSourceFactory: DataSource.Factory = DefaultHttpDataSource.Factory()
-        val data = Resource.createDataSet()
-        if (id != null) {
-            val mediaSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(MediaItem.fromUri
-                    (data[id.toInt()].sources))
-            MainPlayer.setMediaSource(mediaSource)
-        }
+
+        vidViewModel =
+            ViewModelProvider(this, VidViewModelFactory(VidRepository(RetrofitService)))
+                .get(
+                    VidViewModel::class.java
+                )
+        vidViewModel.getVideos()
+        vidViewModel.videoList.observe(this, Observer {
+//                it.forEach {
+//                    val item = MediaItem.fromUri(it.sources.joinToString(""))
+//                    MainPlayer.addMediaItem(item)
+//                }
+            val item = MediaItem.fromUri(it[id].sources.joinToString(""))
+            MainPlayer.setMediaItem(item)
+        })
         MainPlayer.prepare()
         MainPlayer.addListener(this)
         MainPlayer.play()
+
+        getDataFromDBbyId()
     }
 
-    private fun initNotification(){
-        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.O){
+    fun getDataFromDBbyId() {
+        CoroutineScope(Dispatchers.Default).launch {
+            val db = Room.databaseBuilder(
+                applicationContext,
+                VideoDatabase::class.java, "database-name"
+            ).fallbackToDestructiveMigration()
+                .build()
+            val db_data = db.videoDao()
+            val Videos: List<Video> = db_data!!.getAll()
+            Log.d("Room",Videos.toString())
+        }
+    }
+
+
+    private fun initNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME_1,
-                NotificationManager.IMPORTANCE_DEFAULT).apply {
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
                 lightColor = Color.GREEN
                 enableLights(true)
             }
@@ -77,10 +114,10 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         }
     }
 
-    override fun onIsPlayingChanged(isPlaying: Boolean){
+    override fun onIsPlayingChanged(isPlaying: Boolean) {
         val contentIntent = PendingIntent.getActivity(
             this, 0,
-            Intent(this, ExoPlayerActivity::class.java),  PendingIntent.FLAG_CANCEL_CURRENT
+            Intent(this, ExoPlayerActivity::class.java), PendingIntent.FLAG_CANCEL_CURRENT
         )
         if (isPlaying) {
             mNotificationManagerCompat = NotificationManagerCompat.from(this)
@@ -139,7 +176,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        KEY_PLAYER_POSITION =  "pause"
+        KEY_PLAYER_POSITION = "pause"
         KEY_PLAYER_PLAY_WHEN_READY = "true"
         outState.putLong(KEY_PLAYER_POSITION, MainPlayer.contentPosition)
         outState.putBoolean(KEY_PLAYER_PLAY_WHEN_READY, MainPlayer.playWhenReady)

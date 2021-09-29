@@ -3,20 +3,22 @@ package com.example.exoplayer.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import java.io.Serializable
 
-@Entity(tableName = "Videos")
-data class Videos(
+@Entity(tableName = "Video")
+data class Video(
     @PrimaryKey
     @ColumnInfo(name = "id")
     var id:Long,
-    @ColumnInfo(name = "name")
-    var description: String,
+    @ColumnInfo(name = "description")
+    val description:String,
     @ColumnInfo(name = "sources")
-    var sources: String,
+    val sources:List<String>,
     @ColumnInfo(name = "subtitle")
-    var subtitle:String,
+    val subtitle:String,
     @ColumnInfo(name = "thumb")
     val thumb:String,
     @ColumnInfo(name = "title")
-    val title:String,
-)
+    val title:String
+): Serializable
