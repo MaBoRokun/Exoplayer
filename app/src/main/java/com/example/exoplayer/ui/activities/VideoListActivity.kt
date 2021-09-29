@@ -6,12 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.example.exoplayer.Resource
 import com.example.exoplayer.ui.adapter.VideoRecycleAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import androidx.room.Room
 import com.example.exoplayer.model.Videos
 import com.example.exoplayer.DAO.AppDatabase
 import com.example.exoplayer.databinding.VideosListBinding

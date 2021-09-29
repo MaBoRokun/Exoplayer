@@ -10,11 +10,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.ViewModelProvider
 import com.example.exoplayer.R
 import com.example.exoplayer.Resource
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
-import com.example.exoplayer.viewmodel.VideoViewModel
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -28,7 +26,6 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 
 
 class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
-    lateinit var videoViewModel: VideoViewModel
     private lateinit var binding: ExoplayerActivityBinding
     private lateinit var MainPlayer: SimpleExoPlayer
     private lateinit var KEY_PLAYER_POSITION:String
@@ -66,10 +63,18 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         MainPlayer.play()
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val intent = Intent(this, VideoListActivity::class.java)
-        startActivity(intent)
+    private fun initNotification(){
+        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.O){
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME_1,
+                NotificationManager.IMPORTANCE_DEFAULT).apply {
+                lightColor = Color.GREEN
+                enableLights(true)
+            }
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean){
@@ -121,18 +126,10 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         }
     }
 
-    private fun initNotification(){
-        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.O){
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME_1,
-                NotificationManager.IMPORTANCE_DEFAULT).apply {
-                lightColor = Color.GREEN
-                enableLights(true)
-            }
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
-        }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, VideoListActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onDestroy() {
