@@ -1,7 +1,6 @@
 package com.example.exoplayer.ui.activities
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,16 +13,16 @@ import com.example.exoplayer.DAO.VideoDatabase
 import com.example.exoplayer.databinding.VideosListBinding
 import com.example.exoplayer.model.Video
 import com.example.exoplayer.network.RetrofitService
-import com.example.exoplayer.repository.VidRepository
-import com.example.exoplayer.viewmodel.VidViewModel
-import com.example.exoplayer.viewmodel.VidViewModelFactory
+import com.example.exoplayer.repository.VideoRepository
+import com.example.exoplayer.viewmodel.VideoViewModel
+import com.example.exoplayer.viewmodel.VideoViewModelFactory
 import kotlinx.coroutines.Dispatchers
 
 
 class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickListener {
 
     private lateinit var binding: VideosListBinding
-    lateinit var vidViewModel: VidViewModel
+    lateinit var videoViewModel: VideoViewModel
     private lateinit var videoAdapter: VideoRecycleAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,11 +31,11 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
         val view = binding.root
         setContentView(view)
         initRecyclerView()
-        vidViewModel = ViewModelProvider(this, VidViewModelFactory(VidRepository(RetrofitService)))
+        videoViewModel = ViewModelProvider(this, VideoViewModelFactory(VideoRepository(RetrofitService)))
             .get(
-                VidViewModel::class.java
+                VideoViewModel::class.java
             )
-        vidViewModel.videoList.observe(this, Observer {
+        videoViewModel.videoList.observe(this, Observer {
             videoAdapter.submitList(it)
             var index:Long = 0
             it.forEach {
@@ -46,7 +45,7 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
             }
         })
 
-        vidViewModel.getVideos()
+        videoViewModel.getVideos()
     }
 
     private fun toLocalStorage(video: Video) {

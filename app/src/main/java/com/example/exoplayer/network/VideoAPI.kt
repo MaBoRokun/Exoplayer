@@ -7,5 +7,5 @@ import retrofit2.http.GET
 
 interface VideoAPI {
     @GET("/DavidStdn/NitrixTestTask/main/videos")
-    fun fetchData(): Call<RetrofitResponse>
+      fun fetchData(): Call<RetrofitResponse>
 }

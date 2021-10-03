@@ -7,6 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
-class VidRepository constructor(private val retrofitService: RetrofitService) {
-    fun getVideos() = retrofitService.VideoService.fetchData()
+class VideoRepository constructor(private val retrofitService: RetrofitService) {
+     fun getVideos() = retrofitService.VideoService.fetchData()
 }

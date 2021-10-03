@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitService {
     private var mClient: OkHttpClient? = null
-    val client: OkHttpClient
+    private val client: OkHttpClient
         @Throws(NoSuchAlgorithmException::class, KeyManagementException::class)
         get() {
             if (mClient == null) {

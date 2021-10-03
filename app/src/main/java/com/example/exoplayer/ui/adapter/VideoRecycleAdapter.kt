@@ -56,9 +56,8 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
             if(position != RecyclerView.NO_POSITION) {
                 listener.onItemClick(position)
                 val intent = Intent(v?.context, ExoPlayerActivity::class.java)
-                intent.putExtra("id",position)
+                intent.putExtra("url",items[position].sources.joinToString(""))
                 v?.context?.startActivity(intent)
-
             }
         }
     }

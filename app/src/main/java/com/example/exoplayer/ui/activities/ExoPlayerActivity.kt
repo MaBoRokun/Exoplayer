@@ -18,24 +18,16 @@ import com.example.exoplayer.R
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
 import com.example.exoplayer.model.Video
 import com.example.exoplayer.network.RetrofitService
-import com.example.exoplayer.repository.VidRepository
-import com.example.exoplayer.viewmodel.VidViewModel
-import com.example.exoplayer.viewmodel.VidViewModelFactory
+import com.example.exoplayer.repository.VideoRepository
+import com.example.exoplayer.viewmodel.VideoViewModel
+import com.example.exoplayer.viewmodel.VideoViewModelFactory
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
 
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import android.R.string
-import com.google.android.exoplayer2.C
 
 
 class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
@@ -44,7 +36,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     private lateinit var KEY_PLAYER_POSITION: String
     private lateinit var KEY_PLAYER_PLAY_WHEN_READY: String
     private lateinit var mNotificationManagerCompat: NotificationManagerCompat
-    lateinit var vidViewModel: VidViewModel
+    lateinit var videoViewModel: VideoViewModel
     private var CHANNEL_ID: String = "channel1"
     private var CHANNEL_NAME_1: String = "FIRSTCHANNEL"
 
@@ -58,34 +50,36 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         initNotification()
 
         val Intent = intent
-        val id = Intent.getIntExtra("id",0)
+        val url = Intent.getStringExtra("url")
+
         MainPlayer = SimpleExoPlayer.Builder(this).build()
 
         binding.MainActivityPlayer.player = MainPlayer
 
-
-        vidViewModel =
-            ViewModelProvider(this, VidViewModelFactory(VidRepository(RetrofitService)))
-                .get(
-                    VidViewModel::class.java
-                )
-        vidViewModel.getVideos()
-        vidViewModel.videoList.observe(this, Observer {
+//            videoViewModel =
+//                ViewModelProvider(this, VideoViewModelFactory(VideoRepository(RetrofitService)))
+//                    .get(
+//                        VideoViewModel::class.java
+//                    )
+//            videoViewModel.getVideos()
+//            videoViewModel.videoList.observe(this, Observer {
 //                it.forEach {
 //                    val item = MediaItem.fromUri(it.sources.joinToString(""))
 //                    MainPlayer.addMediaItem(item)
 //                }
-            val item = MediaItem.fromUri(it[id].sources.joinToString(""))
+        val item = url?.let { MediaItem.fromUri(it) }
+        if (item != null) {
             MainPlayer.setMediaItem(item)
-        })
+        }
+//            })
         MainPlayer.prepare()
         MainPlayer.addListener(this)
         MainPlayer.play()
 
-        getDataFromDBbyId()
+      //  getDataFromDBbyId()
     }
 
-    fun getDataFromDBbyId() {
+    fun getDataFromLocalDB() {
         CoroutineScope(Dispatchers.Default).launch {
             val db = Room.databaseBuilder(
                 applicationContext,
@@ -93,7 +87,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
             ).fallbackToDestructiveMigration()
                 .build()
             val db_data = db.videoDao()
-            val Videos: List<Video> = db_data!!.getAll()
+            val Videos: List<Video> = db_data.getAll()
             Log.d("Room",Videos.toString())
         }
     }
@@ -176,21 +170,24 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        MainPlayer.pause()
         KEY_PLAYER_POSITION = "pause"
         KEY_PLAYER_PLAY_WHEN_READY = "true"
         outState.putLong(KEY_PLAYER_POSITION, MainPlayer.contentPosition)
         outState.putBoolean(KEY_PLAYER_PLAY_WHEN_READY, MainPlayer.playWhenReady)
-        MainPlayer.pause()
-        Log.d("ExoPlayerState", MainPlayer.playbackState.toString())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
+        val timestamp:Long
+        val isReady:Boolean
         savedInstanceState.let {
-            MainPlayer.seekTo(it.getLong("pause"))
-            MainPlayer.playWhenReady = it.getBoolean("true")
+            timestamp = it.getLong("pause")
+            isReady = it.getBoolean("true")
+            Log.d("ExoPlayerState", timestamp.toString())
         }
-        Log.d("ExoPlayerState", MainPlayer.playbackState.toString())
+        MainPlayer.seekTo(timestamp)
+        MainPlayer.playWhenReady = isReady
     }
 
 }
