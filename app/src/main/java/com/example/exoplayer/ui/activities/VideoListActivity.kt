@@ -1,6 +1,7 @@
 package com.example.exoplayer.ui.activities
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -9,11 +10,12 @@ import androidx.room.Room
 import com.example.exoplayer.ui.adapter.VideoRecycleAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.example.exoplayer.DAO.VideoDatabase
+import com.example.exoplayer.database.VideoDatabase
 import com.example.exoplayer.databinding.VideosListBinding
 import com.example.exoplayer.model.Video
 import com.example.exoplayer.network.RetrofitService
 import com.example.exoplayer.repository.VideoRepository
+import com.example.exoplayer.viewmodel.RoomViewModel
 import com.example.exoplayer.viewmodel.VideoViewModel
 import com.example.exoplayer.viewmodel.VideoViewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +25,7 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
 
     private lateinit var binding: VideosListBinding
     lateinit var videoViewModel: VideoViewModel
+    lateinit var roomViewModel: RoomViewModel
     private lateinit var videoAdapter: VideoRecycleAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +34,30 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
         val view = binding.root
         setContentView(view)
         initRecyclerView()
+        initViewModels()
+    }
+
+    private fun initRecyclerView() {
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@VideoListActivity)
+            videoAdapter = VideoRecycleAdapter(this@VideoListActivity)
+            binding.recyclerView.adapter = videoAdapter
+        }
+    }
+    private fun initViewModels(){
+        roomViewModel = ViewModelProvider(this, ViewModelProvider
+            .AndroidViewModelFactory
+            .getInstance(this.application))
+            .get(RoomViewModel::class.java)
+
+        roomViewModel.getRecordsObserver().observe(this, object : Observer<List<Video>> {
+            override fun onChanged(t: List<Video>?) {
+                t?.forEach {
+                    Log.d("Room",it.toString())
+                }
+            }
+        })
+
         videoViewModel = ViewModelProvider(this, VideoViewModelFactory(VideoRepository(RetrofitService)))
             .get(
                 VideoViewModel::class.java
@@ -40,32 +67,12 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
             var index:Long = 0
             it.forEach {
                 it.id=index
-                toLocalStorage(it)
+               roomViewModel.insertRecord(it)
                 index++
             }
         })
 
         videoViewModel.getVideos()
-    }
-
-    private fun toLocalStorage(video: Video) {
-        CoroutineScope(Dispatchers.Default).launch {
-            val db = Room.databaseBuilder(
-                applicationContext,
-                VideoDatabase::class.java, "database-name"
-            ).fallbackToDestructiveMigration()
-                .build()
-            val VideosDAO = db.videoDao()
-            VideosDAO.insert(video)
-        }
-    }
-
-    private fun initRecyclerView() {
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(this@VideoListActivity)
-            videoAdapter = VideoRecycleAdapter(this@VideoListActivity)
-            binding.recyclerView.adapter = videoAdapter
-        }
     }
 
     override fun onItemClick(position: Int) {

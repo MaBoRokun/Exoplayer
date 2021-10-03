@@ -1,4 +1,4 @@
-package com.example.exoplayer.DAO
+package com.example.exoplayer.database
 
 import android.content.Context
 import androidx.room.Database
@@ -6,10 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.exoplayer.model.Video
-import com.example.exoplayer.model.VideoSourceConverter
 
 
-@Database(entities = arrayOf(Video::class), version = 1, exportSchema = false)
+@Database(entities = [Video::class], version = 2, exportSchema = false)
 @TypeConverters(VideoSourceConverter::class)
 abstract class VideoDatabase : RoomDatabase() {
 
@@ -20,7 +19,7 @@ abstract class VideoDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: VideoDatabase? = null
 
-        fun getDatabaseClient(context: Context): VideoDatabase {
+        fun getDatabaseInstance(context: Context): VideoDatabase {
 
             if (INSTANCE != null) return INSTANCE!!
 

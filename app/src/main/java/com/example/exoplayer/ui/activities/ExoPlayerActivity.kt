@@ -10,17 +10,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
-import com.example.exoplayer.DAO.VideoDatabase
+import com.example.exoplayer.database.VideoDatabase
 import com.example.exoplayer.R
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
 import com.example.exoplayer.model.Video
-import com.example.exoplayer.network.RetrofitService
-import com.example.exoplayer.repository.VideoRepository
 import com.example.exoplayer.viewmodel.VideoViewModel
-import com.example.exoplayer.viewmodel.VideoViewModelFactory
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -87,7 +82,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
             ).fallbackToDestructiveMigration()
                 .build()
             val db_data = db.videoDao()
-            val Videos: List<Video> = db_data.getAll()
+            val Videos: List<Video> = db_data.getAllFromDB()
             Log.d("Room",Videos.toString())
         }
     }

@@ -1,8 +1,6 @@
-package com.example.exoplayer.model
+package com.example.exoplayer.database
 
 import androidx.room.TypeConverter
-import java.util.*
-import java.util.stream.Collectors
 
 class VideoSourceConverter {
 
