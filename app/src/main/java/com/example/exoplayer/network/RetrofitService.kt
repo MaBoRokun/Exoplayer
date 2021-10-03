@@ -1,6 +1,6 @@
 package com.example.exoplayer.network
 
-import com.example.exoplayer.VideoCredentials
+import com.example.exoplayer.resource.VideoCredentials
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

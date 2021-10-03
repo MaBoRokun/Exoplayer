@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.exoplayer.R
-import com.example.exoplayer.VideoCredentials
+import com.example.exoplayer.resource.VideoCredentials
 import com.example.exoplayer.model.Video
 import com.example.exoplayer.ui.activities.ExoPlayerActivity
 import com.squareup.picasso.Picasso

@@ -1,4 +1,4 @@
-package com.example.exoplayer
+package com.example.exoplayer.resource
 
 object VideoCredentials {
     val BASE_URL = "https://raw.githubusercontent.com"
