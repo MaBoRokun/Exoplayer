@@ -12,11 +12,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class RoomViewModel @Inject constructor(application: Application):AndroidViewModel(application) {
+class RoomViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
     @Inject
     lateinit var videoDao: VideoDao
 
-    private var DBLocalList:MutableLiveData<List<Video>>
+    private var DBLocalList: MutableLiveData<List<Video>>
 
     init {
         (application as MyApp).getAppComponent().inject(this)
@@ -24,18 +24,19 @@ class RoomViewModel @Inject constructor(application: Application):AndroidViewMod
         getAllRecords()
     }
 
-    fun getRecordsObserver():MutableLiveData<List<Video>>{
-        return  DBLocalList
+    fun getRecordsObserver(): MutableLiveData<List<Video>> {
+        return DBLocalList
     }
 
-    fun getAllRecords(){
+    fun getAllRecords() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 val list = videoDao.getAllFromDB()
                 DBLocalList.postValue(list)
             }
         }
     }
+
     fun insertRecord(video: Video) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {

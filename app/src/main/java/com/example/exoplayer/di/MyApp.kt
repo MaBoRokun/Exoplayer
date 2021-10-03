@@ -2,7 +2,7 @@ package com.example.exoplayer.di
 
 import android.app.Application
 
-class MyApp:Application() {
+class MyApp : Application() {
 
     private lateinit var appComponent: AppComponent
 
@@ -14,7 +14,7 @@ class MyApp:Application() {
             .build()
     }
 
-    fun getAppComponent():AppComponent{
+    fun getAppComponent(): AppComponent {
         return appComponent
     }
 

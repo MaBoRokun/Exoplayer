@@ -22,7 +22,7 @@ object RetrofitService {
                 httpBuilder
                     .connectTimeout(15, TimeUnit.SECONDS)
                     .readTimeout(20, TimeUnit.SECONDS)
-                    .addInterceptor(interceptor)  /// show all JSON in logCat
+                    .addInterceptor(interceptor)
                 mClient = httpBuilder.build()
 
             }
@@ -36,6 +36,7 @@ object RetrofitService {
             .client(client)
             .build()
     }
+
     val VideoService: VideoAPI by lazy {
         retrofit().create(VideoAPI::class.java)
     }

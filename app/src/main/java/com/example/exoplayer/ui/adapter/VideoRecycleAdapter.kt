@@ -13,9 +13,8 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.*
 
 
-class VideoRecycleAdapter(private val listener: OnItemClickListener)
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>()
-{
+class VideoRecycleAdapter(private val listener: OnItemClickListener) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items: List<Video> = ArrayList()
 
@@ -23,15 +22,16 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
         return VideoViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.layout_blog_list_item,
-                parent, false)
+                parent, false
+            )
         )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        holder.itemView.title.text= items[position].title
-        holder.itemView.subtitle.text= items[position].subtitle
+        holder.itemView.title.text = items[position].title
+        holder.itemView.subtitle.text = items[position].subtitle
         val targetImageView = holder.itemView.thumb
-        Picasso.get().load(VideoCredentials.IMAGE_BASE_URL+items[position].thumb)
+        Picasso.get().load(VideoCredentials.IMAGE_BASE_URL + items[position].thumb)
             .into(targetImageView)
     }
 
@@ -39,29 +39,30 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener)
         return items.size
     }
 
-    fun submitList(videoList: List<Video>){
+    fun submitList(videoList: List<Video>) {
         items = videoList
         notifyDataSetChanged()
     }
 
-    inner class VideoViewHolder(itemView: View): RecyclerView.ViewHolder(itemView),
-        View.OnClickListener{
+    inner class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener {
 
         init {
             itemView.setOnClickListener(this)
         }
 
         override fun onClick(v: View?) {
-            val position:Int = absoluteAdapterPosition
-            if(position != RecyclerView.NO_POSITION) {
+            val position: Int = absoluteAdapterPosition
+            if (position != RecyclerView.NO_POSITION) {
                 listener.onItemClick(position)
                 val intent = Intent(v?.context, ExoPlayerActivity::class.java)
-                intent.putExtra("url",items[position].sources.joinToString(""))
+                intent.putExtra("url", items[position].sources.joinToString(""))
                 v?.context?.startActivity(intent)
             }
         }
     }
-    interface OnItemClickListener{
+
+    interface OnItemClickListener {
         fun onItemClick(position: Int)
     }
 

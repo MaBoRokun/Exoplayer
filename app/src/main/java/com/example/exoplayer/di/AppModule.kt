@@ -9,23 +9,23 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class AppModule(val application: Application){
+class AppModule(val application: Application) {
 
     @Singleton
     @Provides
-    fun getVideoDao(videoDatabase: VideoDatabase):VideoDao{
+    fun getVideoDao(videoDatabase: VideoDatabase): VideoDao {
         return videoDatabase.videoDao()
     }
 
     @Singleton
     @Provides
-    fun getRoomObjIntance():VideoDatabase{
+    fun getRoomObjIntance(): VideoDatabase {
         return VideoDatabase.getDatabaseInstance(provideAppContext())
     }
 
     @Singleton
     @Provides
-    fun provideAppContext():Context{
+    fun provideAppContext(): Context {
         return application.applicationContext
     }
 }

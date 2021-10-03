@@ -62,31 +62,16 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 //                    val item = MediaItem.fromUri(it.sources.joinToString(""))
 //                    MainPlayer.addMediaItem(item)
 //                }
+
         val item = url?.let { MediaItem.fromUri(it) }
         if (item != null) {
             MainPlayer.setMediaItem(item)
         }
-//            })
         MainPlayer.prepare()
         MainPlayer.addListener(this)
         MainPlayer.play()
 
-      //  getDataFromDBbyId()
     }
-
-    fun getDataFromLocalDB() {
-        CoroutineScope(Dispatchers.Default).launch {
-            val db = Room.databaseBuilder(
-                applicationContext,
-                VideoDatabase::class.java, "database-name"
-            ).fallbackToDestructiveMigration()
-                .build()
-            val db_data = db.videoDao()
-            val Videos: List<Video> = db_data.getAllFromDB()
-            Log.d("Room",Videos.toString())
-        }
-    }
-
 
     private fun initNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -174,12 +159,11 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        val timestamp:Long
-        val isReady:Boolean
+        val timestamp: Long
+        val isReady: Boolean
         savedInstanceState.let {
             timestamp = it.getLong("pause")
             isReady = it.getBoolean("true")
-            Log.d("ExoPlayerState", timestamp.toString())
         }
         MainPlayer.seekTo(timestamp)
         MainPlayer.playWhenReady = isReady
