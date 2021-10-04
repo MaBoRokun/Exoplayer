@@ -15,9 +15,10 @@ import javax.inject.Singleton
 @Module
 object RetrofitService {
     private var mClient: OkHttpClient? = null
+
     @Singleton
     @Provides
-    fun getClient():OkHttpClient{
+    fun getClient(): OkHttpClient {
         if (mClient == null) {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -32,25 +33,10 @@ object RetrofitService {
         }
         return mClient!!
     }
-//    private val client: OkHttpClient
-//        get() {
-//            if (mClient == null) {
-//                val interceptor = HttpLoggingInterceptor()
-//                interceptor.level = HttpLoggingInterceptor.Level.BODY
-//
-//                val httpBuilder = OkHttpClient.Builder()
-//                httpBuilder
-//                    .connectTimeout(15, TimeUnit.SECONDS)
-//                    .readTimeout(20, TimeUnit.SECONDS)
-//                    .addInterceptor(interceptor)
-//                mClient = httpBuilder.build()
-//
-//            }
-//            return mClient!!
-//        }
+
     @Singleton
     @Provides
-     fun retrofit(): Retrofit {
+    fun retrofit(): Retrofit {
 
         return Retrofit.Builder()
             .baseUrl(VideoCredentials.BASE_URL)
@@ -58,6 +44,7 @@ object RetrofitService {
             .client(getClient())
             .build()
     }
+
     @Singleton
     val VideoService: VideoAPI by lazy {
         retrofit().create(VideoAPI::class.java)

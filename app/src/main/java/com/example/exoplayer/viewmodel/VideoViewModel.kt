@@ -18,25 +18,25 @@ import kotlin.system.measureTimeMillis
 
 class VideoViewModel
 @Inject
-constructor(private val repository: VideoRepository):ViewModel() {
+constructor(private val repository: VideoRepository) : ViewModel() {
 
     var videoList = MutableLiveData<List<Video>>()
 
-    fun getVideos(){
-         val time = measureTimeMillis {
-             viewModelScope.launch {
-                 withContext(Dispatchers.IO) {
-                     val response = repository.getVideos()
-                     if(response.isSuccessful){
-                         val result = response.body()?.categoryResponses
-                         result?.forEach {
-                             videoList.postValue(it.videos)
-                         }
-                     }
-                 }
-             }
-         }
-         Log.d("RetrofitReq","$time ms")
+    fun getVideos() {
+        val time = measureTimeMillis {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    val response = repository.getVideos()
+                    if (response.isSuccessful) {
+                        val result = response.body()?.categoryResponses
+                        result?.forEach {
+                            videoList.postValue(it.videos)
+                        }
+                    }
+                }
+            }
+        }
+        Log.d("RetrofitReq", "$time ms")
     }
 
 }
