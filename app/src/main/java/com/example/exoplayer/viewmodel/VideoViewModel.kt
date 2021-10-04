@@ -13,9 +13,12 @@ import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 import kotlin.system.measureTimeMillis
 
-class VideoViewModel constructor(private val repository: VideoRepository):ViewModel() {
+class VideoViewModel
+@Inject
+constructor(private val repository: VideoRepository):ViewModel() {
 
     var videoList = MutableLiveData<List<Video>>()
 
@@ -24,24 +27,12 @@ class VideoViewModel constructor(private val repository: VideoRepository):ViewMo
              viewModelScope.launch {
                  withContext(Dispatchers.IO) {
                      val response = repository.getVideos()
-                     response.enqueue(object : Callback<RetrofitResponse> {
-                         override fun onResponse(
-                             call: Call<RetrofitResponse>,
-                             response: Response<RetrofitResponse>
-                         ) {
-                             if (response.code() == 200) {
-                                 val result = response.body()?.categoryResponses
-                                 result?.forEach {
-                                     videoList.postValue(it.videos)
-                                 }
-                             }
+                     if(response.isSuccessful){
+                         val result = response.body()?.categoryResponses
+                         result?.forEach {
+                             videoList.postValue(it.videos)
                          }
-
-                         override fun onFailure(call: Call<RetrofitResponse>, t: Throwable) {
-
-                         }
-
-                     })
+                     }
                  }
              }
          }

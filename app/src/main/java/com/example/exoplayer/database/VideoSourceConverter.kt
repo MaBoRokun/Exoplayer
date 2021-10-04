@@ -5,13 +5,9 @@ import androidx.room.TypeConverter
 class VideoSourceConverter {
 
     @TypeConverter
-    fun toString(source: List<String>): String {
-        return source.joinToString(",")
-    }
+    fun toString(source: List<String>): String = source.joinToString(",")
 
     @TypeConverter
-    fun toList(data: String): List<String> {
-        return data.split(",".toRegex()).toList()
-    }
+    fun toList(data: String): List<String> = data.split(",".toRegex()).toList()
 
 }

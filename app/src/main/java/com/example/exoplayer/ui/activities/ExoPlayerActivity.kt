@@ -7,33 +7,21 @@ import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.room.Room
-import com.example.exoplayer.database.VideoDatabase
 import com.example.exoplayer.R
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
-import com.example.exoplayer.model.Video
-import com.example.exoplayer.viewmodel.VideoViewModel
+import com.example.exoplayer.resource.VideoCredentials.CHANNEL_ID
+import com.example.exoplayer.resource.VideoCredentials.CHANNEL_NAME_1
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
 
 class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     private lateinit var binding: ExoplayerActivityBinding
-    private lateinit var MainPlayer: SimpleExoPlayer
-    private lateinit var KEY_PLAYER_POSITION: String
-    private lateinit var KEY_PLAYER_PLAY_WHEN_READY: String
+    private lateinit var mainPlayer: SimpleExoPlayer
     private lateinit var mNotificationManagerCompat: NotificationManagerCompat
-    lateinit var videoViewModel: VideoViewModel
-    private var CHANNEL_ID: String = "channel1"
-    private var CHANNEL_NAME_1: String = "FIRSTCHANNEL"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +32,12 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 
         initNotification()
 
-        val Intent = intent
-        val url = Intent.getStringExtra("url")
+        val activityIntent = intent
+        val url = activityIntent.getStringExtra("url")
 
-        MainPlayer = SimpleExoPlayer.Builder(this).build()
+        mainPlayer = SimpleExoPlayer.Builder(this).build()
 
-        binding.MainActivityPlayer.player = MainPlayer
+        binding.MainActivityPlayer.player = mainPlayer
 
 //            videoViewModel =
 //                ViewModelProvider(this, VideoViewModelFactory(VideoRepository(RetrofitService)))
@@ -60,16 +48,16 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 //            videoViewModel.videoList.observe(this, Observer {
 //                it.forEach {
 //                    val item = MediaItem.fromUri(it.sources.joinToString(""))
-//                    MainPlayer.addMediaItem(item)
+//                    mainPlayer.addMediaItem(item)
 //                }
 
         val item = url?.let { MediaItem.fromUri(it) }
         if (item != null) {
-            MainPlayer.setMediaItem(item)
+            mainPlayer.setMediaItem(item)
         }
-        MainPlayer.prepare()
-        MainPlayer.addListener(this)
-        MainPlayer.play()
+        mainPlayer.prepare()
+        mainPlayer.addListener(this)
+        mainPlayer.play()
 
     }
 
@@ -91,7 +79,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         val contentIntent = PendingIntent.getActivity(
             this, 0,
-            Intent(this, ExoPlayerActivity::class.java), PendingIntent.FLAG_CANCEL_CURRENT
+            Intent(this, ExoPlayerActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT
         )
         if (isPlaying) {
             mNotificationManagerCompat = NotificationManagerCompat.from(this)
@@ -150,11 +138,9 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        MainPlayer.pause()
-        KEY_PLAYER_POSITION = "pause"
-        KEY_PLAYER_PLAY_WHEN_READY = "true"
-        outState.putLong(KEY_PLAYER_POSITION, MainPlayer.contentPosition)
-        outState.putBoolean(KEY_PLAYER_PLAY_WHEN_READY, MainPlayer.playWhenReady)
+        mainPlayer.pause()
+        outState.putLong("pause", mainPlayer.contentPosition)
+        outState.putBoolean("true", mainPlayer.playWhenReady)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -165,8 +151,8 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
             timestamp = it.getLong("pause")
             isReady = it.getBoolean("true")
         }
-        MainPlayer.seekTo(timestamp)
-        MainPlayer.playWhenReady = isReady
+        mainPlayer.seekTo(timestamp)
+        mainPlayer.playWhenReady = isReady
     }
 
 }

@@ -50,7 +50,7 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
 
         roomViewModel.getRecordsObserver().observe(this, object : Observer<List<Video>> {
             override fun onChanged(t: List<Video>?) {
-                t?.forEach {
+                t?.forEach { _ ->
                 }
             }
         })
@@ -60,7 +60,7 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
                 .get(
                     VideoViewModel::class.java
                 )
-        videoViewModel.videoList.observe(this, Observer { data ->
+        videoViewModel.videoList.observe(this, { data ->
             videoAdapter.submitList(data)
             var index: Long = 0
             data.forEach { video ->
