@@ -16,23 +16,23 @@ class RoomViewModel @Inject constructor(application: Application) : AndroidViewM
     @Inject
     lateinit var videoDao: VideoDao
 
-    private var DBLocalList: MutableLiveData<List<Video>>
+    var DBLocalData: MutableLiveData<List<Video>>
 
     init {
         (application as MyApp).getAppComponent().inject(this)
-        DBLocalList = MutableLiveData()
+        DBLocalData = MutableLiveData()
         getAllRecords()
     }
 
     fun getRecordsObserver(): MutableLiveData<List<Video>> {
-        return DBLocalList
+        return DBLocalData
     }
 
     fun getAllRecords() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val list = videoDao.getAllFromDB()
-                DBLocalList.postValue(list)
+                DBLocalData.postValue(list)
             }
         }
     }

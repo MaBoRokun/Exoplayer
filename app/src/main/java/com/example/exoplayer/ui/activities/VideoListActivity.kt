@@ -1,7 +1,6 @@
 package com.example.exoplayer.ui.activities
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -50,7 +49,7 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
 
         roomViewModel.getRecordsObserver().observe(this, object : Observer<List<Video>> {
             override fun onChanged(t: List<Video>?) {
-                t?.forEach { _ ->
+                t?.forEach {
                 }
             }
         })
@@ -79,7 +78,7 @@ class VideoListActivity : AppCompatActivity(), VideoRecycleAdapter.OnItemClickLi
 
     override fun onBackPressed() {
         super.onBackPressed()
-        finish()
+        finishAffinity()
     }
 
 }

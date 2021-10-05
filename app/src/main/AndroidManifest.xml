@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Exoplayer">
-        <service android:name=".service.NotificationService"/>
+        <service android:name=".service.ExoPlayerMediaService"/>
         <activity
             android:name=".ui.activities.VideoListActivity"
             android:exported="true">

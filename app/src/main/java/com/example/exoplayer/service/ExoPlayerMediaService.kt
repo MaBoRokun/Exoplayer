@@ -11,16 +11,16 @@ import com.example.exoplayer.R
 import com.example.exoplayer.resource.VideoCredentials.CHANNEL_ID
 import com.example.exoplayer.ui.activities.ExoPlayerActivity
 
-class NotificationService : Service() {
+class ExoPlayerMediaService : Service() {
     companion object {
         fun startService(context: Context, message: String) {
-            val startIntent = Intent(context, NotificationService::class.java)
+            val startIntent = Intent(context, ExoPlayerMediaService::class.java)
             startIntent.putExtra("player_status", message)
             ContextCompat.startForegroundService(context, startIntent)
         }
 
         fun stopService(context: Context) {
-            val stopIntent = Intent(context, NotificationService::class.java)
+            val stopIntent = Intent(context, ExoPlayerMediaService::class.java)
             context.stopService(stopIntent)
         }
     }

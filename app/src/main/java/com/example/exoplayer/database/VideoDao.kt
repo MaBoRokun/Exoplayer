@@ -2,8 +2,6 @@ package com.example.exoplayer.database
 
 import androidx.room.*
 import com.example.exoplayer.model.Video
-import dagger.Provides
-
 
 @Dao
 interface VideoDao {
@@ -19,4 +17,5 @@ interface VideoDao {
 
     @Delete
     fun delete(video: Video)
+
 }

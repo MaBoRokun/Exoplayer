@@ -1,19 +1,12 @@
 package com.example.exoplayer.ui.activities
 
-import android.app.*
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import com.example.exoplayer.R
+import androidx.lifecycle.ViewModelProvider
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
-import com.example.exoplayer.resource.VideoCredentials.CHANNEL_ID
-import com.example.exoplayer.resource.VideoCredentials.CHANNEL_NAME_1
-import com.example.exoplayer.service.NotificationService
+import com.example.exoplayer.service.ExoPlayerMediaService
+import com.example.exoplayer.viewmodel.RoomViewModel
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -22,6 +15,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     private lateinit var binding: ExoplayerActivityBinding
     private lateinit var mainPlayer: SimpleExoPlayer
+    private lateinit var roomViewModel: RoomViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,52 +26,48 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
 
 
         val activityIntent = intent
-        val url = activityIntent.getStringExtra("url")
+        val id = activityIntent.getIntExtra("id", 0)
+        val list:MutableList<MediaItem> = arrayListOf()
 
         mainPlayer = SimpleExoPlayer.Builder(this).build()
 
         binding.MainActivityPlayer.player = mainPlayer
 
-//            videoViewModel =
-//                ViewModelProvider(this, VideoViewModelFactory(VideoRepository(RetrofitService)))
-//                    .get(
-//                        VideoViewModel::class.java
-//                    )
-//            videoViewModel.getVideos()
-//            videoViewModel.videoList.observe(this, Observer {
-//                it.forEach {
-//                    val item = MediaItem.fromUri(it.sources.joinToString(""))
-//                    mainPlayer.addMediaItem(item)
-//                }
-
-        val item = url?.let { MediaItem.fromUri(it) }
-        if (item != null) {
-            mainPlayer.setMediaItem(item)
-        }
-        mainPlayer.prepare()
-        mainPlayer.addListener(this)
-        mainPlayer.play()
+        roomViewModel = ViewModelProvider(this).get(RoomViewModel::class.java)
+        roomViewModel.getAllRecords()
+        roomViewModel.DBLocalData.observe(this, {
+            it.forEach {
+                val item = MediaItem.fromUri(it.sources.joinToString(""))
+                list.add(item)
+            }
+            mainPlayer.setMediaItems(list)
+            mainPlayer.seekTo(id,0)
+            mainPlayer.prepare()
+            mainPlayer.addListener(this)
+            mainPlayer.play()
+        })
 
     }
 
+
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         if (isPlaying) {
-            NotificationService.startService(this, "true")
+            ExoPlayerMediaService.startService(this, "true")
         } else {
-            NotificationService.startService(this, "false")
+            ExoPlayerMediaService.startService(this, "false")
         }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(this, VideoListActivity::class.java)
-        NotificationService.stopService(this)
+        ExoPlayerMediaService.stopService(this)
         startActivity(intent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        NotificationService.stopService(this)
+        ExoPlayerMediaService.stopService(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
