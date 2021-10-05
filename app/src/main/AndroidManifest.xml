@@ -3,6 +3,7 @@
     package="com.example.exoplayer">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -13,7 +14,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Exoplayer">
-
+        <service android:name=".service.NotificationService"/>
         <activity
             android:name=".ui.activities.VideoListActivity"
             android:exported="true">
