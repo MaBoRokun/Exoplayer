@@ -43,8 +43,6 @@ class ExoPlayerMediaService : Service() {
             notificationClickIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-        Log.d("Exoplayer", "$position notific")
-
 //        val nextVideo = PendingIntent.getActivity(
 //            this,
 //            0,

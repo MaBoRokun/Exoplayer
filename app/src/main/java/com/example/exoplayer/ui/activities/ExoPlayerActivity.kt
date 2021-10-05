@@ -60,7 +60,6 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
                 ExoPlayerMediaService.startService(this, "true",
                     it,mainPlayer.currentWindowIndex)
             }
-            Log.d("Exoplayer",video.toString())
         } else {
             video=videoList[mainPlayer.currentWindowIndex]
             video.let {
