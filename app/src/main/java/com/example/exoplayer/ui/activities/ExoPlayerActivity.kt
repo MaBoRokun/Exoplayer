@@ -3,8 +3,10 @@ package com.example.exoplayer.ui.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import com.example.exoplayer.databinding.ExoplayerActivityBinding
+import com.example.exoplayer.model.Video
 import com.example.exoplayer.service.ExoPlayerMediaService
 import com.example.exoplayer.viewmodel.RoomViewModel
 import com.google.android.exoplayer2.MediaItem
@@ -16,6 +18,7 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
     private lateinit var binding: ExoplayerActivityBinding
     private lateinit var mainPlayer: SimpleExoPlayer
     private lateinit var roomViewModel: RoomViewModel
+    private lateinit var videoList:List<Video>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +28,9 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         setContentView(view)
 
 
-        val activityIntent = intent
-        val id = activityIntent.getIntExtra("id", 0)
+        val id = intent.getIntExtra("id",0)
         val list:MutableList<MediaItem> = arrayListOf()
+
 
         mainPlayer = SimpleExoPlayer.Builder(this).build()
 
@@ -45,16 +48,25 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
             mainPlayer.prepare()
             mainPlayer.addListener(this)
             mainPlayer.play()
+            videoList=it
         })
-
     }
 
-
     override fun onIsPlayingChanged(isPlaying: Boolean) {
+        val video:Video
         if (isPlaying) {
-            ExoPlayerMediaService.startService(this, "true")
+            video=videoList[mainPlayer.currentWindowIndex]
+            video.let {
+                ExoPlayerMediaService.startService(this, "true",
+                    it,mainPlayer.currentWindowIndex)
+            }
+            Log.d("Exoplayer",video.toString())
         } else {
-            ExoPlayerMediaService.startService(this, "false")
+            video=videoList[mainPlayer.currentWindowIndex]
+            video.let {
+                ExoPlayerMediaService.startService(this, "false",
+                    it,mainPlayer.currentWindowIndex)
+            }
         }
     }
 
@@ -63,11 +75,16 @@ class ExoPlayerActivity : AppCompatActivity(), Player.Listener {
         val intent = Intent(this, VideoListActivity::class.java)
         ExoPlayerMediaService.stopService(this)
         startActivity(intent)
-    }
 
+    }
+    override fun onStop() {
+        super.onStop()
+        mainPlayer.stop()
+    }
     override fun onDestroy() {
         super.onDestroy()
         ExoPlayerMediaService.stopService(this)
+        mainPlayer.stop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

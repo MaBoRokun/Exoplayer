@@ -57,6 +57,8 @@ class VideoRecycleAdapter(private val listener: OnItemClickListener) :
                 listener.onItemClick(position)
                 val intent = Intent(v?.context, ExoPlayerActivity::class.java)
                 intent.putExtra("id", position)
+                intent.putExtra("title",items[position].title)
+                intent.putExtra("subtitle",items[position].subtitle)
                 v?.context?.startActivity(intent)
             }
         }
