@@ -34,39 +34,43 @@ class ExoPlayerMediaService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+
         val position = intent.getIntExtra("position", 0)
+        val status = intent.getStringExtra("player_status")
+        val title = intent.getStringExtra("title")
+        val subtitle = intent.getStringExtra("subtitle")
+
         val notificationClickIntent = Intent(this, ExoPlayerActivity::class.java)
         notificationClickIntent.putExtra("id", position)
+
         val contentIntent = PendingIntent.getActivity(
             this,
             0,
             notificationClickIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-//        val nextVideo = PendingIntent.getActivity(
-//            this,
-//            0,
-//            Intent(this, ExoPlayerActivity::class.java).putExtra("id", position + 1),
-//            PendingIntent.FLAG_UPDATE_CURRENT
-//        )
-//
-//        val prevVideo = PendingIntent.getActivity(
-//            this,
-//            0,
-//            Intent(this, ExoPlayerActivity::class.java).putExtra("id", position -1),
-//            PendingIntent.FLAG_UPDATE_CURRENT
-//        )
 
-        //do heavy work on a background thread
-        val status = intent.getStringExtra("player_status")
-        val title = intent.getStringExtra("title")
-        val subtitle = intent.getStringExtra("subtitle")
+        //PlayBack next video action function
+        val nextVideo = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, ExoPlayerActivity::class.java).putExtra("id", position + 1),
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        //PlayBack previous video action function
+        val prevVideo = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, ExoPlayerActivity::class.java).putExtra("id", position - 1),
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
 
         createNotificationChannel()
 
         val notification: Notification
         if (status == "true") {
-
             notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon(R.drawable.exo_notification_small_icon)
@@ -97,7 +101,6 @@ class ExoPlayerMediaService : Service() {
                 .build()
             startForeground(1, notification)
         }
-        //stopSelf();
         return START_NOT_STICKY
     }
 
